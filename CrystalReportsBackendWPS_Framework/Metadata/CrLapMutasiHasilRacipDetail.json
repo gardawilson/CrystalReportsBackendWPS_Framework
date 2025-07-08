@@ -1,0 +1,7 @@
+{
+  "dataset": "DtMutasiRacip",
+  "outputFile": "MutasiRacip.pdf",
+  "rptFile": "CrLapMutasiHasilRacipDetail.rpt",
+  "storedProcedure": "SPWps_LapMutasiRacipanDetail",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ]
+}

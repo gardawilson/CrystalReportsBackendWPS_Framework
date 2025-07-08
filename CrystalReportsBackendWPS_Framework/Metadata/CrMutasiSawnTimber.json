@@ -1,0 +1,7 @@
+{
+  "dataset": "DtMutasiST",
+  "outputFile": "MutasiSawnTimber.pdf",
+  "rptFile": "CrMutasiSawnTimber.rpt",
+  "storedProcedure": "SP_Mutasi_ST",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ]
+}

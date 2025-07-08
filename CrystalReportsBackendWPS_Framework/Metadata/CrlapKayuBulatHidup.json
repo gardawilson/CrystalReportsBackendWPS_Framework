@@ -1,0 +1,8 @@
+{
+  "dataset": "DtMutasiRacip",
+  "outputFile": "LapKayuBulatHidup.pdf",
+  "rptFile": "CrlapKayuBulatHidup.rpt",
+  "storedProcedure": "SPWps_LapkayuBulatHidup",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ]
+}
+

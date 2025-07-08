@@ -1,0 +1,14 @@
+{
+  "dataset": "DtMutasiS4S",
+  "outputFile": "MutasiS4S.pdf",
+  "rptFile": "CrMutasiS4S.rpt",
+  "storedProcedure": "SP_Mutasi_S4S",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ],
+  "storedProcedureSubreports": {
+    "InputS4SProd": {
+      "storedProcedure": "SP_SubMutasi_S4S",
+      "dataset": "DtInputS4SProduksi",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "dataset": "DtMutasiFingerJoint",
+  "outputFile": "MutasiFingerJoint.pdf",
+  "rptFile": "CrMutasiFingerJoint.rpt",
+  "storedProcedure": "SP_Mutasi_FingerJoint",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ],
+  "storedProcedureSubreports": {
+    "InputFJProd": {
+      "storedProcedure": "SP_SubMutasi_FingerJoint",
+      "dataset": "InputFjProduksi",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    }
+  }
+}

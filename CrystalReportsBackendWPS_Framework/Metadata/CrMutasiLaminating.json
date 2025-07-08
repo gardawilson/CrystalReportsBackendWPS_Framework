@@ -1,0 +1,14 @@
+{
+  "dataset": "DtMutasiLaminating",
+  "outputFile": "MutasiLaminating.pdf",
+  "rptFile": "CrMutasiLaminating.rpt",
+  "storedProcedure": "SP_Mutasi_Laminating",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ],
+  "storedProcedureSubreports": {
+    "InputLaminatingProd": {
+      "storedProcedure": "SP_SubMutasi_Laminating",
+      "dataset": "DtInputLaminatingProduksi",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    }
+  }
+}

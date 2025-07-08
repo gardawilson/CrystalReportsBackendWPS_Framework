@@ -1,0 +1,7 @@
+{
+  "dataset": "DtRekapPenSTDariSawmill",
+  "outputFile": "RekapPenSTDariSawmill.pdf",
+  "rptFile": "CrRekapPenSTDariSawmill.rpt",
+  "storedProcedure": "SPWps_LapRekapPenSTDariSawmill",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ]
+}

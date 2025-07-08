@@ -1,0 +1,14 @@
+{
+  "dataset": "DtMutasiBJ",
+  "outputFile": "MutasiBJ.pdf",
+  "rptFile": "CrMutasiBJ.rpt",
+  "storedProcedure": "SP_Mutasi_BarangJadi",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ],
+  "storedProcedureSubreports": {
+    "InputBJProd": {
+      "storedProcedure": "SP_SubMutasi_BarangJadi",
+      "dataset": "DtSubMutasiBJ",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    }
+  }
+}

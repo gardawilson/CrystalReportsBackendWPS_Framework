@@ -1,0 +1,14 @@
+{
+  "dataset": "DtMutasiMoulding",
+  "outputFile": "MutasiMoulding.pdf",
+  "rptFile": "CrMutasiMoulding.rpt",
+  "storedProcedure": "SP_Mutasi_Moulding",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ],
+  "storedProcedureSubreports": {
+    "InputMouldingProd": {
+      "storedProcedure": "SP_SubMutasi_Moulding",
+      "dataset": "DtInputMouldingProduksi",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "dataset": "DtMutasiCrossCutAkhir",
+  "outputFile": "MutasiCrossCutAkhir.pdf",
+  "rptFile": "CrMutasiCrossCutAkhir.rpt",
+  "storedProcedure": "SP_Mutasi_CCAkhir",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ],
+  "storedProcedureSubreports": {
+    "InputCCAkhirProd": {
+      "storedProcedure": "SP_SubMutasi_CCAkhir",
+      "dataset": "DtInputCCAkhirProduksi",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    }
+  }
+}

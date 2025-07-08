@@ -1,0 +1,7 @@
+{
+  "dataset": "DtMutasiKB",
+  "outputFile": "MutasiKayuBulat.pdf",
+  "rptFile": "CrMutasiKayuBulat.rpt",
+  "storedProcedure": "SP_Mutasi_KayuBulatV2B",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ]
+}

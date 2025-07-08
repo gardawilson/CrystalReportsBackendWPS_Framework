@@ -1,0 +1,14 @@
+{
+  "dataset": "DtMutasiSanding",
+  "outputFile": "MutasiSanding.pdf",
+  "rptFile": "CrMutasiSanding.rpt",
+  "storedProcedure": "SP_Mutasi_Sanding",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ],
+  "storedProcedureSubreports": {
+    "InputSandingProd": {
+      "storedProcedure": "SP_SubMutasi_Sanding",
+      "dataset": "DtInputSandingProduksi",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    }
+  }
+}

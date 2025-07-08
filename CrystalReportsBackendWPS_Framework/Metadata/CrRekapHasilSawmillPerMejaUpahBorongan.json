@@ -1,0 +1,14 @@
+{
+  "dataset": "DtUpahBoronganSub",
+  "outputFile": "RekapHasilSawmillPerMejaUpahBorongan.pdf",
+  "rptFile": "CrRekapHasilSawmillPerMejaUpahBorongan.rpt",
+  "storedProcedure": "SPWps_LapRekapHasilSawmillPerMejaUpahBorongan",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ],
+  "storedProcedureSubreports": {
+    "CrSubRekapHasilSawmillPerMejaUpahBorongan.rpt": {
+      "storedProcedure": "SPWps_LapRekapHasilSawmillPerMejaUpahBorongan_sub",
+      "dataset": "DtUpahBoronganSub",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    }
+  }
+}
