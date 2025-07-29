@@ -232,6 +232,10 @@
     <Content Include="Metadata\CrMutasiCrossCutAkhir.json" />
     <Content Include="Metadata\CrMutasiSanding.json" />
     <Content Include="Metadata\CrMutasiBJ.json" />
+    <Content Include="Metadata\CrPenSTSawmillPembelian.json" />
+    <Content Include="Metadata\CrUmurKayuBulatNonRambung.json" />
+    <Content Include="Metadata\CrUmurKayuBulatRambung.json" />
+    <Content Include="Metadata\CrLembarTally.json" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />

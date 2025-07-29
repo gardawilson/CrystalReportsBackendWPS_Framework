@@ -1,0 +1,14 @@
+{
+  "dataset": "DtPenSTSawmilNew",
+  "outputFile": "PenSTSawmillPembelian.pdf",
+  "rptFile": "CrPenSTSawmillPembelian.rpt",
+  "storedProcedure": "SPWps_LapPenSTSawmilPembelian",
+  "sqlParameters": [ "NoProduksi" ],
+  "storedProcedureSubreports": {
+    "Reject": {
+      "storedProcedure": "SPWps_LapPenSTSawmilPembelianSub",
+      "dataset": "DtPenSTSawmillReject",
+      "sqlParameters": [ "NoProduksi" ]
+    }
+  }
+}

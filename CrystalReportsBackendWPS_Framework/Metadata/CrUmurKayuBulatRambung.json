@@ -1,0 +1,7 @@
+{
+  "dataset": "DtUmurKayuBulat",
+  "outputFile": "UmurKayuBulat.pdf",
+  "rptFile": "CrUmurKayuBulat.rpt",
+  "storedProcedure": "SPWps_LapUmurKayuBulatRambung",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ]
+}

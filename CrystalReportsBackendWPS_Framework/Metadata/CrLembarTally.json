@@ -1,0 +1,7 @@
+{
+  "dataset": "DtLembarTelly",
+  "outputFile": "LembarTally.pdf",
+  "rptFile": "CrLembarTally.rpt",
+  "storedProcedure": "SPWps_LapUpahSawmill",
+  "sqlParameters": [ "NoProduksi" ]
+}
