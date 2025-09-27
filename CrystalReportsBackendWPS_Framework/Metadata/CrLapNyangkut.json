@@ -1,0 +1,10 @@
+{
+  "dataset": "DtNyangkut",
+  "outputFile": "LapNyangkut.pdf",
+  "rptFile": "CrLapNyangkut.rpt",
+
+  "storedProcedure": "SPWps_LapLabelNyangkut",
+  "sqlParameters": [],
+
+  "storedProcedureSubreports": {}
+}

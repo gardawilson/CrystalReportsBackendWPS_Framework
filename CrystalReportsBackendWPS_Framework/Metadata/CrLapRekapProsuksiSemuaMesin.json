@@ -1,0 +1,10 @@
+{
+  "dataset": "DtLapRekapSemuaMesin",
+  "outputFile": "LapRekapProduksiSemuaMesin.pdf",
+  "rptFile": "CrLapRekapProsuksiSemuaMesin.rpt",
+
+  "storedProcedure": "SPWps_LapProduksiSemuaMesin",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ],
+
+  "storedProcedureSubreports": {}
+}

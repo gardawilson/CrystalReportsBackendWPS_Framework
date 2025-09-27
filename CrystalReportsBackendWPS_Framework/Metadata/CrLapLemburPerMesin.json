@@ -1,0 +1,10 @@
+{
+  "dataset": "DtLapLemburPerMesin",
+  "outputFile": "LapLemburPerMesin.pdf",
+  "rptFile": "CrLapLemburPerMesin.rpt",
+
+  "storedProcedure": "SPWps_LapLemburPerMesin",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ],
+
+  "storedProcedureSubreports": {}
+}

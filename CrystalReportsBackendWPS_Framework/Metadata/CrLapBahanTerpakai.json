@@ -1,0 +1,15 @@
+{
+  "dataset": "DtBahanTerpakai",
+  "outputFile": "LapBahanTerpakai.pdf",
+  "rptFile": "CrLapBahanTerpakai.rpt",
+  "storedProcedure": "SPWps_LapBahanTerpakai",
+  "sqlParameters": [ "TglAwal" ],
+
+  "storedProcedureSubreports": {
+    "TerpakaiST": {
+      "storedProcedure": "SPWps_LapSubBahanTerpakai",
+      "dataset": "DtSubBahanTerpakai",
+      "sqlParameters": [ "TglAwal" ]
+    }
+  }
+}

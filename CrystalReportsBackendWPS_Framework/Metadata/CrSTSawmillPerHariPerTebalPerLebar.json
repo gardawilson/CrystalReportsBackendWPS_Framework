@@ -1,0 +1,7 @@
+{
+  "dataset": "DtStSawmillPerHariPerTebalPerLebar",
+  "outputFile": "STSawmillPerHariPerTebalPerLebar.pdf",
+  "rptFile": "CrSTSawmillPerHariPerTebalPerLebar.rpt",
+  "storedProcedure": "SPWps_LapSTSawmillPerHariPerTebalPerLebar",
+  "sqlParameters": [ "StartDate", "EndDate" ]
+}

@@ -1,0 +1,7 @@
+{
+  "dataset": "DtBongkarSusun",
+  "outputFile": "LapRangkumanBongkarSusun.pdf",
+  "rptFile": "CrLapRangkumanBongkarSusun.rpt",
+  "storedProcedure": "SPWps_LapRangkumanBongkarSusun",
+  "sqlParameters": [ "TglAwal" ]
+}

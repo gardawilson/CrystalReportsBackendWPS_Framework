@@ -1,0 +1,116 @@
+{
+  "dataset": null,
+  "outputFile": "RekapMutasi.pdf",
+  "rptFile": "CrRekapMutasi.rpt",
+  "storedProcedure": null,
+  "sqlParameters": [],
+  "storedProcedureSubreports": {
+    "CrRekapMutasiKB.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubKB",
+      "dataset": "DtMutasiKB",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrRekapMutasiKayuBulatKG.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubKBKG",
+      "dataset": "DtMutasiKBKG",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrRekapMutasiST.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubST",
+      "dataset": "DtMutasiST",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrRekapMutasiFingerJoint.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubFJ",
+      "dataset": "DtMutasiFingerJoint",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrRekapMutasiS4S.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubS4S",
+      "dataset": "DtMutasiS4S",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "RekapMutasiS4SIn.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubS4SIn",
+      "dataset": "DtSubMutasiS4S",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrRekapMutasiMoulding.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubMLD",
+      "dataset": "DtMutasiMoulding",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "RekapMutasiMouldingIn.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubMLDIn",
+      "dataset": "DtSubMutasiMoulding",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrRekapMutasiLaminating.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubLMT",
+      "dataset": "DTMutasiLaminating",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "RekapMutasiLaminatingIn.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubLMTIn",
+      "dataset": "DTSubMutasiLaminating",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrRekapMutasiCCAkhir.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubCCA",
+      "dataset": "DtMutasiCrossCutAkhir",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "RekapMutasiCCAkhirIn.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubCCAIn",
+      "dataset": "DtSubMutasiCrossCutAkhir",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrRekapMutasiSanding.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubSAND",
+      "dataset": "DtMutasiSanding",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "RekapMutasiSandingIn.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubSANDIn",
+      "dataset": "DtSubMutasiSanding",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+
+    // ====== BJ: pass seluruh DataSet DsMutasiBJ ======
+    "CrRekapMutasiBJ.rpt": {
+      "sources": [
+        {
+          "storedProcedure": "SPWps_LapRekapMutasi_SubBJ",
+          "dataset": "DtMutasiBJ",
+          "sqlParameters": [ "TglAwal", "TglAkhir" ]
+        },
+        {
+          "dataset": "DtSaldoAwalBJ",
+          "noFill": true
+        },
+        {
+          "dataset": "DtSaldoAkhirBJ",
+          "noFill": true
+        },
+        {
+          "dataset": "DtSaldoMasukBJ",
+          "noFill": true
+        },
+        {
+          "dataset": "DtSaldoJualBJ",
+          "noFill": true
+        },
+        {
+          "dataset": "DtSaldoMinusBJ",
+          "noFill": true
+        }
+      ]
+    },
+
+    "RekapMutasiBJIn.rpt": {
+      "storedProcedure": "SPWps_LapRekapMutasi_SubBJIn",
+      "dataset": "DtSubMutasiBJ",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    }
+  }
+}

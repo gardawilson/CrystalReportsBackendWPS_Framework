@@ -1,0 +1,16 @@
+{
+  "dataset": "DtLabelPerHari",
+  "outputFile": "LapLabelPerHari.pdf",
+  "rptFile": "CrLapLabelPerhari.rpt",
+
+  "storedProcedure": "SPWps_LapLabelPerhari",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ],
+
+  "storedProcedureSubreports": {
+    "SubLapLabelPerhari": {
+      "storedProcedure": "SPWps_LapLabelPerhari",
+      "dataset": "DtSubLabelPerHari",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    }
+  }
+}

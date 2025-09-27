@@ -1,0 +1,8 @@
+{
+  "dataset": "DtBahanDihasilkan",
+  "outputFile": "LapBahanDihasilkan.pdf",
+  "rptFile": "CrLapBahanDiHasilkan.rpt",
+  "storedProcedure": "SPWps_LapBahanYangDihasilkan",
+  "sqlParameters": [ "TglAwal" ]
+
+}

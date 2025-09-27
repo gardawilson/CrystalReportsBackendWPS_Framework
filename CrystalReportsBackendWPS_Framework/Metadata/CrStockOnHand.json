@@ -1,0 +1,60 @@
+{
+  "dataset": null,
+  "outputFile": "RekapStockOnHand.pdf",
+  "rptFile": "CrStockOnHand.rpt",
+  "storedProcedure": null,
+  "sqlParameters": [],
+
+  "storedProcedureSubreports": {
+    "CrStockOnHandKB.rpt": {
+      "storedProcedure": "SPWps_LapRekapStockOnHand_SubKB",
+      "dataset": "DtStockOnHandKB",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrStockOnHandST.rpt": {
+      "storedProcedure": "SPWps_LapRekapStockOnHand_SubST",
+      "dataset": "DtStockOnHandST",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrStockOnHandS4S.rpt": {
+      "storedProcedure": "SPWps_LapRekapStockOnHand_SubS4S",
+      "dataset": "DtStockOnHandS4S",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrStockOnHandFJ.rpt": {
+      "storedProcedure": "SPWps_LapRekapStockOnHand_SubFJ",
+      "dataset": "DtStockOnHandFJ",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrStockOnHandMoulding.rpt": {
+      "storedProcedure": "SPWps_LapRekapStockOnHand_SubMoulding",
+      "dataset": "DtStockOnHandMoulding",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrStockOnHandLaminating.rpt": {
+      "storedProcedure": "SPWps_LapRekapStockOnHand_SubLMT",
+      "dataset": "DtStockOnHandLaminating",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrStockOnHandCCAkhir.rpt": {
+      "storedProcedure": "SPWps_LapRekapStockOnHand_SubCCAkhir",
+      "dataset": "DtStockOnHandCCAkhir",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrStockOnHandSanding.rpt": {
+      "storedProcedure": "SPWps_LapRekapStockOnHand_SubSanding",
+      "dataset": "DtStockOnHandSanding",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrStockOnHandReproses.rpt": {
+      "storedProcedure": "SPWps_LapRekapStockOnHand_SubReproses",
+      "dataset": "DtStockOnHandReproses",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    },
+    "CrStockOnHandBJ.rpt": {
+      "storedProcedure": "SPWps_LapRekapStockOnHand_SubBJ",
+      "dataset": "DtStockOnHandBJ",
+      "sqlParameters": [ "TglAwal", "TglAkhir" ]
+    }
+  }
+}

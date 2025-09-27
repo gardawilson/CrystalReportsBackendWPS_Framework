@@ -16,183 +16,308 @@ namespace CrystalReportsBackendWPS_Framework.Controllers
 {
     public class CrystalReportController : ApiController
     {
+        private const string ConnString = "Data Source=192.168.10.100;Initial Catalog=WPS;User ID=sa;Password=Utama1234";
+        private const string DbServer = "192.168.10.100";
+        private const string DbName = "WPS";
+        private const string DbUser = "sa";
+        private const string DbPass = "Utama1234";
+
+        private const string NetworkReportRoot = @"\\192.168.10.100\ReportForms\WPS";
+        private const string LogDir = @"C:\Temp";
+
+        // ==== Metadata models ====
+        private class SubSource   // satu tabel dalam subreport
+        {
+            public string storedProcedure { get; set; }
+            public string dataset { get; set; }
+            public List<string> sqlParameters { get; set; } = new List<string>();
+            public bool noFill { get; set; } = false; // << tambahkan ini
+        }
+
+        private class SubMeta     // kumpulan tabel (bisa 1 atau banyak)
+        {
+            // kompatibel lama (single):
+            public string storedProcedure { get; set; }
+            public string dataset { get; set; }
+            public List<string> sqlParameters { get; set; } = new List<string>();
+
+            // baru (multi):
+            public List<SubSource> sources { get; set; } = new List<SubSource>();
+        }
+
+        private class ReportMeta
+        {
+            public string dataset { get; set; }
+            public string outputFile { get; set; }
+            public string rptFile { get; set; }
+            public string storedProcedure { get; set; }
+            public List<string> sqlParameters { get; set; } = new List<string>();
+            public Dictionary<string, SubMeta> storedProcedureSubreports { get; set; }
+                = new Dictionary<string, SubMeta>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        // ==== Helpers ====
+        private static object CoerceValue(string raw)
+        {
+            if (raw == null) return DBNull.Value;
+            if (DateTime.TryParse(raw, out var d)) return d;
+            return raw;
+        }
+
+        private static DataTable ExecToDataTable(string spName, IEnumerable<string> paramNames,
+                                                 Func<string, string> resolve, string tableName)
+        {
+            var dt = new DataTable(string.IsNullOrWhiteSpace(tableName) ? "Data" : tableName);
+            using (var con = new SqlConnection(ConnString))
+            using (var cmd = new SqlCommand("dbo." + spName, con) { CommandType = CommandType.StoredProcedure })
+            using (var adp = new SqlDataAdapter(cmd))
+            {
+                if (paramNames != null)
+                {
+                    foreach (var p in paramNames)
+                    {
+                        var raw = resolve(p);
+                        cmd.Parameters.AddWithValue("@" + p, CoerceValue(raw) ?? DBNull.Value);
+                    }
+                }
+                adp.Fill(dt);
+            }
+            return dt;
+        }
+
+        private static void ForceDbLogin(ReportDocument doc, string server, string db, string user, string pass)
+        {
+            // 1) Global logon
+            doc.SetDatabaseLogon(user, pass, server, db);
+            // 2) DataSourceConnections
+            try { for (int i = 0; i < doc.DataSourceConnections.Count; i++) doc.DataSourceConnections[i].SetConnection(server, db, user, pass); } catch { }
+            // 3) Apply to all tables
+            var loi = new TableLogOnInfo { ConnectionInfo = new ConnectionInfo { ServerName = server, DatabaseName = db, UserID = user, Password = pass, IntegratedSecurity = false } };
+            foreach (Table t in doc.Database.Tables) t.ApplyLogOnInfo(loi);
+            foreach (ReportDocument sr in doc.Subreports)
+            {
+                sr.SetDatabaseLogon(user, pass, server, db);
+                try { for (int i = 0; i < sr.DataSourceConnections.Count; i++) sr.DataSourceConnections[i].SetConnection(server, db, user, pass); } catch { }
+                foreach (Table t in sr.Database.Tables) t.ApplyLogOnInfo(loi);
+            }
+        }
+
+        private static void DumpTables(ReportDocument doc, string logFile, string tag)
+        {
+            File.AppendAllText(logFile, $"[TABLES {tag}] MAIN:\n");
+            foreach (Table t in doc.Database.Tables) File.AppendAllText(logFile, $"  - {t.Name} | {t.Location}\n");
+            foreach (ReportDocument sr in doc.Subreports)
+            {
+                File.AppendAllText(logFile, $"[TABLES {tag}] SUB: {sr.Name}\n");
+                foreach (Table t in sr.Database.Tables) File.AppendAllText(logFile, $"  - {t.Name} | {t.Location}\n");
+            }
+        }
+
         [HttpGet]
         [Route("api/crystalreport/wps/export-pdf")]
         public IHttpActionResult ExportPDF(string reportName)
         {
+            ReportDocument rptDoc = null;
             try
             {
                 if (string.IsNullOrWhiteSpace(reportName))
                     return BadRequest("Parameter 'reportName' wajib diisi.");
 
-                string networkPath = @"\\192.168.10.100\ReportForms\WPS";
-                string metadataFilePath = System.Web.Hosting.HostingEnvironment.MapPath($"~/Metadata/{reportName}.json");
+                Directory.CreateDirectory(LogDir);
+                var logFile = Path.Combine(LogDir, "crystal_debug_log.txt");
 
+                // metadata
+                var metadataFilePath = System.Web.Hosting.HostingEnvironment.MapPath($"~/Metadata/{reportName}.json");
                 if (!File.Exists(metadataFilePath))
-                    return InternalServerError(new FileNotFoundException("File metadata.json tidak ditemukan di folder Metadata."));
+                    return InternalServerError(new FileNotFoundException("File metadata tidak ditemukan.", metadataFilePath));
 
-                dynamic meta = JsonConvert.DeserializeObject(File.ReadAllText(metadataFilePath));
-                string rptFile = meta.rptFile;
-                string outputFile = meta.outputFile;
-                string datasetName = meta.dataset;
-                string storedProcedure = meta.storedProcedure;
-                List<string> sqlParams = ((IEnumerable<dynamic>)meta.sqlParameters).Select(p => (string)p).ToList();
+                var meta = JsonConvert.DeserializeObject<ReportMeta>(File.ReadAllText(metadataFilePath));
+                if (meta == null || string.IsNullOrWhiteSpace(meta.rptFile))
+                    return InternalServerError(new InvalidDataException("Metadata tidak valid atau rptFile kosong."));
 
-                var queryParams = Request.GetQueryNameValuePairs().ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.OrdinalIgnoreCase);
-
-                foreach (var param in sqlParams)
-                {
-                    if (!queryParams.ContainsKey(param))
-                        return BadRequest($"Parameter '{param}' wajib dikirim.");
-                }
-
-                string username = queryParams.ContainsKey("Username") ? queryParams["Username"] : "Unknown";
-
-                string rptPath = Path.Combine(networkPath, rptFile);
+                var rptPath = Path.Combine(NetworkReportRoot, meta.rptFile);
                 if (!File.Exists(rptPath))
-                    return InternalServerError(new FileNotFoundException($"File .rpt tidak ditemukan di: {rptPath}"));
+                    return InternalServerError(new FileNotFoundException($"File .rpt tidak ditemukan di: {rptPath}", rptPath));
 
-                string logDir = @"C:\Temp";
-                Directory.CreateDirectory(logDir);
-                string logFile = Path.Combine(logDir, "crystal_debug_log.txt");
-
-                File.AppendAllText(logFile, $"\n[{DateTime.Now}] Menjalankan report: {reportName} ({rptFile})\n");
-                File.AppendAllText(logFile, $"Stored Procedure: {storedProcedure}\n");
-
-                DataTable dt = new DataTable(datasetName);
-                using (SqlConnection conn = new SqlConnection("Data Source=192.168.10.100;Initial Catalog=WPS;User ID=sa;Password=Utama1234"))
+                // resolver param 2 arah
+                var qp = Request.GetQueryNameValuePairs().ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.OrdinalIgnoreCase);
+                string username = qp.ContainsKey("Username") ? qp["Username"] : "Unknown";
+                string Resolver(string key)
                 {
-                    using (SqlCommand cmd = new SqlCommand($"dbo.{storedProcedure}", conn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-
-                        foreach (var param in sqlParams)
-                        {
-                            string value = queryParams[param];
-                            object finalValue = DateTime.TryParse(value, out DateTime dateVal) ? (object)dateVal : value;
-                            cmd.Parameters.AddWithValue("@" + param, string.IsNullOrEmpty(value) ? DBNull.Value : finalValue);
-                            File.AppendAllText(logFile, $" - @{param} = {finalValue}\n");
-                        }
-
-                        SqlDataAdapter da = new SqlDataAdapter(cmd);
-                        da.Fill(dt);
-
-                        // Konversi kolom InOut jadi Boolean agar sesuai dengan report
-                        if (dt.Columns.Contains("InOut"))
-                        {
-                            dt.Columns["InOut"].ColumnName = "InOut_Old"; // hindari konflik
-                            dt.Columns.Add("InOut", typeof(bool));
-                            foreach (DataRow row in dt.Rows)
-                            {
-                                int val = row["InOut_Old"] != DBNull.Value ? Convert.ToInt32(row["InOut_Old"]) : 0;
-                                row["InOut"] = (val == 1);
-                            }
-                            dt.Columns.Remove("InOut_Old");
-                        }
-
-
-                    }
+                    if (qp.TryGetValue(key, out var v) && !string.IsNullOrWhiteSpace(v)) return v;
+                    if (key.Equals("TglAwal", StringComparison.OrdinalIgnoreCase) && qp.TryGetValue("StartDate", out v)) return v;
+                    if (key.Equals("TglAkhir", StringComparison.OrdinalIgnoreCase) && qp.TryGetValue("EndDate", out v)) return v;
+                    if (key.Equals("StartDate", StringComparison.OrdinalIgnoreCase) && qp.TryGetValue("TglAwal", out v)) return v;
+                    if (key.Equals("EndDate", StringComparison.OrdinalIgnoreCase) && qp.TryGetValue("TglAkhir", out v)) return v;
+                    if (key.Equals("Username", StringComparison.OrdinalIgnoreCase)) return username;
+                    return null;
                 }
 
-                if (dt.Rows.Count == 0)
-                    return BadRequest("Data tidak ditemukan.");
+                // main (opsional)
+                DataTable dtMain = null;
+                var hasMainSp = !string.IsNullOrWhiteSpace(meta.storedProcedure);
+                if (hasMainSp)
+                {
+                    foreach (var p in meta.sqlParameters ?? Enumerable.Empty<string>())
+                        if (Resolver(p) == null) return BadRequest($"Parameter '{p}' wajib dikirim.");
 
-                ReportDocument rptDoc = new ReportDocument();
+                    dtMain = ExecToDataTable(meta.storedProcedure, meta.sqlParameters, Resolver,
+                                             string.IsNullOrWhiteSpace(meta.dataset) ? "MainData" : meta.dataset);
+
+                    if (dtMain.Columns.Contains("InOut"))
+                    {
+                        dtMain.Columns["InOut"].ColumnName = "InOut_Old";
+                        dtMain.Columns.Add("InOut", typeof(bool));
+                        foreach (DataRow r in dtMain.Rows)
+                            r["InOut"] = (r["InOut_Old"] != DBNull.Value && Convert.ToInt32(r["InOut_Old"]) == 1);
+                        dtMain.Columns.Remove("InOut_Old");
+                    }
+                    if (dtMain.Rows.Count == 0) return BadRequest("Data tidak ditemukan.");
+                }
+
+                // load RPT
+                rptDoc = new ReportDocument();
                 rptDoc.Load(rptPath);
-                rptDoc.SetDataSource(dt);
+                DumpTables(rptDoc, logFile, "AFTER-LOAD");
 
-                // === JALANKAN SUBREPORT JIKA ADA ===
-                if (meta.storedProcedureSubreports != null)
+                // paksa login (kalau ada objek DB Fields tersisa)
+                ForceDbLogin(rptDoc, DbServer, DbName, DbUser, DbPass);
+
+                if (hasMainSp) rptDoc.SetDataSource(dtMain);
+
+                // validasi nama subreport
+                var rptSubNames = rptDoc.Subreports.Cast<ReportDocument>().Select(s => s.Name)
+                                   .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                File.AppendAllText(logFile, $"[{DateTime.Now}] REPORT={reportName} RPT={meta.rptFile}\n");
+                File.AppendAllText(logFile, $"Subreports in RPT: {string.Join(", ", rptSubNames)}\n");
+
+                // === supply data per subreport (bisa multi-table) ===
+                if (meta.storedProcedureSubreports != null && meta.storedProcedureSubreports.Count > 0)
                 {
-                    foreach (var sub in meta.storedProcedureSubreports)
+                    foreach (var kv in meta.storedProcedureSubreports)
                     {
-                        string subreportName = sub.Name; // Nama subreport dalam RPT (bisa .rpt atau tanpa)
-                        string subSP = sub.Value.storedProcedure;
-                        string subDataset = sub.Value.dataset;
-                        List<string> subParams = ((IEnumerable<dynamic>)sub.Value.sqlParameters).Select(p => (string)p).ToList();
+                        var subName = kv.Key;
+                        var sMeta = kv.Value;
 
-                        DataTable dtSub = new DataTable(subDataset);
-
-                        using (SqlConnection connSub = new SqlConnection("Data Source=192.168.10.100;Initial Catalog=WPS;User ID=sa;Password=Utama1234"))
+                        if (!rptSubNames.Contains(subName))
                         {
-                            using (SqlCommand cmdSub = new SqlCommand(subSP, connSub))
-                            {
-                                cmdSub.CommandType = CommandType.StoredProcedure;
-                                foreach (var p in subParams)
-                                {
-                                    string val = queryParams.ContainsKey(p) ? queryParams[p] : null;
-                                    object finalVal = DateTime.TryParse(val, out var dtVal) ? (object)dtVal : val;
-                                    cmdSub.Parameters.AddWithValue("@" + p, string.IsNullOrEmpty(val) ? DBNull.Value : finalVal);
-                                    File.AppendAllText(logFile, $"[SUBREPORT PARAM] {subreportName} -> @{p} = {finalVal}\n");
-                                }
+                            File.AppendAllText(logFile, $"[WARN] Subreport '{subName}' tidak ada di file RPT.\n");
+                            continue;
+                        }
 
-                                SqlDataAdapter daSub = new SqlDataAdapter(cmdSub);
-                                daSub.Fill(dtSub);
+                        // normalisasi ke "sources"
+                        var sources = new List<SubSource>();
+                        if (sMeta.sources != null && sMeta.sources.Count > 0)
+                        {
+                            sources.AddRange(sMeta.sources);
+                        }
+                        else if (!string.IsNullOrWhiteSpace(sMeta.storedProcedure))
+                        {
+                            sources.Add(new SubSource
+                            {
+                                storedProcedure = sMeta.storedProcedure,
+                                dataset = string.IsNullOrWhiteSpace(sMeta.dataset) ? "SubData" : sMeta.dataset,
+                                sqlParameters = sMeta.sqlParameters ?? new List<string>()
+                            });
+                        }
+                        else
+                        {
+                            File.AppendAllText(logFile, $"[WARN] Subreport '{subName}' tidak punya sumber data di metadata.\n");
+                            continue;
+                        }
+
+                        // Build DataSet berisi SEMUA tabel yang dibutuhkan subreport tsb
+                        var dsSub = new DataSet(subName);
+                        DataTable firstSchema = null;
+
+                        foreach (var src in sources)
+                        {
+                            var tableName = string.IsNullOrWhiteSpace(src.dataset) ? "SubData" : src.dataset;
+
+                            // SKIP eksekusi jika noFill atau SP kosong → supply DataTable kosong
+                            if (src.noFill || string.IsNullOrWhiteSpace(src.storedProcedure))
+                            {
+                                var dtEmpty = new DataTable(tableName);
+                                dsSub.Tables.Add(dtEmpty);
+                                File.AppendAllText(logFile, $"[SUB {subName}] placeholder empty table '{tableName}' (no fill).\n");
+                                continue;
+                            }
+
+                            try
+                            {
+                                var dt = ExecToDataTable(src.storedProcedure, src.sqlParameters, Resolver, tableName);
+                                dsSub.Tables.Add(dt);
+                                if (firstSchema == null) firstSchema = dt.Clone(); // opsional
+                                File.AppendAllText(logFile, $"[SUB {subName}] filled {tableName} via {src.storedProcedure}\n");
+                            }
+                            catch (SqlException ex) when (ex.Number == 2812) // SP not found
+                            {
+                                var dtEmpty = firstSchema != null ? firstSchema.Clone() : new DataTable(tableName);
+                                dtEmpty.TableName = tableName;
+                                dsSub.Tables.Add(dtEmpty);
+                                File.AppendAllText(logFile, $"[SUB {subName}] WARN: SP '{src.storedProcedure}' not found → supplying empty table '{tableName}'.\n");
+                            }
+                            catch (Exception exAny)
+                            {
+                                var dtEmpty = firstSchema != null ? firstSchema.Clone() : new DataTable(tableName);
+                                dtEmpty.TableName = tableName;
+                                dsSub.Tables.Add(dtEmpty);
+                                File.AppendAllText(logFile, $"[SUB {subName}] WARN: failed to fill '{tableName}' via '{src.storedProcedure}' → {exAny.Message} → supplying empty table.\n");
                             }
                         }
 
-                        try
+                        // Set dataset ke subreport (bukan DataTable tunggal)
+                        rptDoc.Subreports[subName].SetDataSource(dsSub);
+
+                        // set parameter di subreport (kalau ada)
+                        foreach (ParameterFieldDefinition pf in rptDoc.Subreports[subName].DataDefinition.ParameterFields)
                         {
-                            rptDoc.Subreports[subreportName].SetDataSource(dtSub);
-                        }
-                        catch (Exception exSub)
-                        {
-                            File.AppendAllText(logFile, $"[SUBREPORT ERROR] {subreportName} ❌ {exSub.Message}\n");
+                            var raw = Resolver(pf.Name);
+                            if (raw == null) continue;
+                            rptDoc.SetParameterValue(pf.Name, CoerceValue(raw), subName);
+                            File.AppendAllText(logFile, $"[SUB SET PARAM] {subName}.{pf.Name} = {raw}\n");
                         }
                     }
                 }
 
-
-                // ==== SET DAN LOG PARAMETER CRYSTAL REPORT ====
-                for (int i = 0; i < rptDoc.ParameterFields.Count; i++)
+                // parameter induk
+                foreach (ParameterFieldDefinition pf in rptDoc.DataDefinition.ParameterFields)
                 {
-                    var paramField = rptDoc.ParameterFields[i];
-                    string paramName = paramField.Name;
-
-                    string paramKey = queryParams.Keys.FirstOrDefault(k =>
-                        k.Equals(paramName, StringComparison.OrdinalIgnoreCase) ||
-                        ("Txt" + k).Equals(paramName, StringComparison.OrdinalIgnoreCase)
-                    );
-
-                    if (!string.IsNullOrEmpty(paramKey))
-                    {
-                        string rawValue = queryParams[paramKey];
-                        object value = (paramField.ParameterValueType == ParameterValueKind.DateParameter ||
-                                        paramField.ParameterValueType == ParameterValueKind.DateTimeParameter)
-                            ? (DateTime.TryParse(rawValue, out var dtVal) ? (object)dtVal : rawValue)
-                            : rawValue;
-
-                        rptDoc.SetParameterValue(paramName, value);
-                        File.AppendAllText(logFile, $"[SET PARAM] {paramName} ← dari query '{paramKey}' = {value}\n");
-                    }
-                    else if (paramName.Equals("Username", StringComparison.OrdinalIgnoreCase))
-                    {
-                        rptDoc.SetParameterValue("Username", username);
-                        File.AppendAllText(logFile, $"[SET PARAM] {paramName} = {username}\n");
-                    }
-                    else
-                    {
-                        File.AppendAllText(logFile, $"[MISSING PARAM] {paramName} ❌ Tidak ditemukan di query string\n");
-                    }
+                    var raw = Resolver(pf.Name);
+                    if (raw == null && pf.Name.Equals("Username", StringComparison.OrdinalIgnoreCase)) raw = username;
+                    if (raw != null) rptDoc.SetParameterValue(pf.Name, CoerceValue(raw));
                 }
 
-                Stream pdfStream = rptDoc.ExportToStream(ExportFormatType.PortableDocFormat);
-                pdfStream.Seek(0, SeekOrigin.Begin);
+                DumpTables(rptDoc, logFile, "BEFORE-EXPORT");
 
-                HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK)
+                // export
+                byte[] pdfBytes;
+                using (var s = rptDoc.ExportToStream(ExportFormatType.PortableDocFormat))
+                using (var ms = new MemoryStream())
                 {
-                    Content = new StreamContent(pdfStream)
+                    s.CopyTo(ms);
+                    pdfBytes = ms.ToArray();
+                }
+
+                rptDoc.Close(); rptDoc.Dispose(); rptDoc = null;
+
+                var http = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(pdfBytes) };
+                http.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+                http.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("inline")
+                {
+                    FileName = string.IsNullOrWhiteSpace(meta.outputFile) ? (reportName + ".pdf") : meta.outputFile
                 };
-                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
-                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("inline") { FileName = outputFile };
-
-                return ResponseMessage(result);
+                return ResponseMessage(http);
             }
             catch (Exception ex)
             {
-                string errLog = @"C:\Temp\crystal_error_log.txt";
-                File.AppendAllText(errLog, $"[{DateTime.Now}] {ex}\n");
+                Directory.CreateDirectory(LogDir);
+                File.AppendAllText(Path.Combine(LogDir, "crystal_error_log.txt"), $"[{DateTime.Now}] {ex}\n");
                 return InternalServerError(new Exception("Terjadi kesalahan saat memproses report. Lihat crystal_error_log.txt"));
+            }
+            finally
+            {
+                if (rptDoc != null) { try { rptDoc.Close(); } catch { } try { rptDoc.Dispose(); } catch { } }
             }
         }
     }

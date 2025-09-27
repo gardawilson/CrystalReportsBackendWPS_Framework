@@ -1,0 +1,7 @@
+{
+  "dataset": "DtProsesProduksi",
+  "outputFile": "ProduksiFJ.pdf",
+  "rptFile": "CrProduksiFJ.rpt",
+  "storedProcedure": "SPWps_LapProduksiFJ",
+  "sqlParameters": [ "NoProduksi" ]
+}

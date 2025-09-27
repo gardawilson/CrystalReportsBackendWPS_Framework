@@ -1,0 +1,7 @@
+{
+  "dataset": "DtProsesProduksi",
+  "outputFile": "ProduksiSanding.pdf",
+  "rptFile": "CrProduksiSanding.rpt",
+  "storedProcedure": "SPWps_LapProduksiSanding",
+  "sqlParameters": [ "NoProduksi" ]
+}

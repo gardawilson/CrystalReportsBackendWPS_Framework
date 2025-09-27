@@ -1,0 +1,10 @@
+{
+  "dataset": "DtFlowProduksiPerPeriode",
+  "outputFile": "FlowProduksiPerPeriode.pdf",
+  "rptFile": "CrFlowProduksiPerPeriode.rpt",
+
+  "storedProcedure": "SPWps_LapFlowProduksiPerPeriode",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ],
+
+  "storedProcedureSubreports": {}
+}

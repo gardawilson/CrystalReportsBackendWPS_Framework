@@ -1,0 +1,7 @@
+{
+  "dataset": "DtMutasiCrossCutAkhir",
+  "outputFile": "ProduksiCCAkhir.pdf",
+  "rptFile": "CrProduksiCCAkhir.rpt",
+  "storedProcedure": "SPWps_LapProduksiCCAkhir",
+  "sqlParameters": [ "NoProduksi" ]
+}

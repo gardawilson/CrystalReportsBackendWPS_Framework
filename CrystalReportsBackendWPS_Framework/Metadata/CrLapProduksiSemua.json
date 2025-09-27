@@ -1,0 +1,7 @@
+{
+  "dataset": "DtSemuaProduksi",
+  "outputFile": "LapProduksiSemua.pdf",
+  "rptFile": "CrLapProduksiSemua.rpt",
+  "storedProcedure": "SPWps_LapRangkumanJlhLabelInput",
+  "sqlParameters": [ "TglAwal", "TglAkhir" ]
+}
