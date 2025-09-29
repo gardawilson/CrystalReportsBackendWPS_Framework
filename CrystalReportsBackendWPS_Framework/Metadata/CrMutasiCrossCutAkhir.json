@@ -7,7 +7,7 @@
   "storedProcedureSubreports": {
     "InputCCAkhirProd": {
       "storedProcedure": "SP_SubMutasi_CCAkhir",
-      "dataset": "DtInputCCAkhirProduksi",
+      "dataset": "DtSubMutasiCrossCutAkhir",
       "sqlParameters": [ "TglAwal", "TglAkhir" ]
     }
   }

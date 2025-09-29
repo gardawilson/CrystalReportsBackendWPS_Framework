@@ -7,7 +7,7 @@
   "storedProcedureSubreports": {
     "InputS4SProd": {
       "storedProcedure": "SP_SubMutasi_S4S",
-      "dataset": "DtInputS4SProduksi",
+      "dataset": "DtSubMutasiS4S",
       "sqlParameters": [ "TglAwal", "TglAkhir" ]
     }
   }

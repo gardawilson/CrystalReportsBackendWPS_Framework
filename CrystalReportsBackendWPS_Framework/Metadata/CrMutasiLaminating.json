@@ -7,7 +7,7 @@
   "storedProcedureSubreports": {
     "InputLaminatingProd": {
       "storedProcedure": "SP_SubMutasi_Laminating",
-      "dataset": "DtInputLaminatingProduksi",
+      "dataset": "DTSubMutasiLaminating",
       "sqlParameters": [ "TglAwal", "TglAkhir" ]
     }
   }

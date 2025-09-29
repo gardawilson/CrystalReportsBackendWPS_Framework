@@ -7,7 +7,7 @@
   "storedProcedureSubreports": {
     "InputMouldingProd": {
       "storedProcedure": "SP_SubMutasi_Moulding",
-      "dataset": "DtInputMouldingProduksi",
+      "dataset": "DtSubMutasiMoulding",
       "sqlParameters": [ "TglAwal", "TglAkhir" ]
     }
   }

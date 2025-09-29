@@ -7,7 +7,7 @@
   "storedProcedureSubreports": {
     "InputSandingProd": {
       "storedProcedure": "SP_SubMutasi_Sanding",
-      "dataset": "DtInputSandingProduksi",
+      "dataset": "DtSubMutasiSanding",
       "sqlParameters": [ "TglAwal", "TglAkhir" ]
     }
   }
